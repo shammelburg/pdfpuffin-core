@@ -1,0 +1,40 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/typescript-node
+{
+	"name": "Node.js & TypeScript",
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	"image": "mcr.microsoft.com/devcontainers/typescript-node:24",
+	"runArgs": [
+		"--name",
+		"pdfpuffin-core-lib"
+	],
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	"features": {
+		"ghcr.io/iambipinpaul/devcontainer-features/oh-my-posh:1": {
+			"theme": "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/jandedobbeleer.omp.json"
+		}
+	},
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [
+	// 	4200
+	// ],
+	// Use 'postCreateCommand' to run commands after the container is created.
+	"postCreateCommand": "npm install -g npm",
+	// Configure tool-specific properties.
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"xabikos.JavaScriptSnippets",
+				"WallabyJs.console-ninja",
+				"christian-kohler.npm-intellisense",
+				"esbenp.prettier-vscode",
+				"sibiraj-s.vscode-scss-formatter",
+				"meganrogge.template-string-converter",
+				"Gruntfuggly.todo-tree",
+				"ms-vscode.vs-keybindings"
+			]
+		}
+	}
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	// "remoteUser": "root"
+}

@@ -1,0 +1,9 @@
+{
+  "features": {
+    "ghcr.io/iambipinpaul/devcontainer-features/oh-my-posh:1": {
+      "version": "1.1.0",
+      "resolved": "ghcr.io/iambipinpaul/devcontainer-features/oh-my-posh@sha256:f54d39807e44c7b554ce6eeadfe1c5f83f12425afc77d9c653b917cbd4d5db74",
+      "integrity": "sha256:f54d39807e44c7b554ce6eeadfe1c5f83f12425afc77d9c653b917cbd4d5db74"
+    }
+  }
+}
