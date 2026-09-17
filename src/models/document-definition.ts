@@ -44,6 +44,7 @@ export interface DocumentDataSource {
   data: unknown[];
 }
 export interface DocumentDefinition {
+  name?: string;
   status?: 'Draft' | 'Live';
   units?: 'px';
   page: {
@@ -105,6 +106,7 @@ export interface DocumentDefinition {
 }
 
 export const DEFAULT_DOCUMENT: DocumentDefinition = {
+  name: '',
   status: 'Draft',
   units: 'px',
   page: {
