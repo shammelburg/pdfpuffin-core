@@ -128,7 +128,6 @@ export const DEFAULT_DOCUMENT: DocumentDefinition = {
     fontLayoutCache: true,
     permissions: {},
   },
-  datasourceReferences: [],
   content: [
     {
       type: 'region',
