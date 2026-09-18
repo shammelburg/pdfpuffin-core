@@ -4,26 +4,98 @@ import { drawTableHeader } from './draw-table-header.js';
 import { ensureSpace } from './ensure-space.js';
 import { withHorizontalMargins } from './with-horizontal-margins.js';
 import { resolveFont } from './resolve-font.js';
-export function renderTable(doc: PDFKit.PDFDocument, table: TableElement): void {
-  withHorizontalMargins(doc, table.marginLeft, table.marginRight, () => {
-  const startX = doc.page.margins.left; const headerHeight = table.showHeader === false ? 0 : (table.headerHeight ?? 30); const padding = table.cellPadding ?? 7;
+function tableLayout(doc: PDFKit.PDFDocument, table: TableElement) {
+  const startX = doc.page.margins.left;
+  const headerHeight =
+    table.showHeader === false ? 0 : (table.headerHeight ?? 30);
+  const padding = table.cellPadding ?? 7;
   const width = doc.page.width - doc.page.margins.left - doc.page.margins.right;
-  const fixedTotal = table.columns.filter((column) => column.widthMode === 'fixed').reduce((sum, column) => sum + Math.max(column.width, 0), 0);
-  const flexColumns = table.columns.filter((column) => column.widthMode !== 'fixed');
-  const flexTotal = flexColumns.reduce((sum, column) => sum + Math.max(column.width || 1, 0), 0);
+  const fixedTotal = table.columns
+    .filter((column) => column.widthMode === "fixed")
+    .reduce((sum, column) => sum + Math.max(column.width, 0), 0);
+  const flexColumns = table.columns.filter(
+    (column) => column.widthMode !== "fixed",
+  );
+  const flexTotal = flexColumns.reduce(
+    (sum, column) => sum + Math.max(column.width || 1, 0),
+    0,
+  );
   const fixedScale = fixedTotal > width ? width / fixedTotal : 1;
   const remaining = Math.max(0, width - fixedTotal * fixedScale);
-  const columns = table.columns.map((column) => ({ ...column, width: column.widthMode === 'fixed'
-    ? column.width * fixedScale
-    : flexColumns.length ? remaining * (Math.max(column.width || 1, 0) / Math.max(flexTotal, 1)) : width / Math.max(table.columns.length, 1) }));
+  const columns = table.columns.map((column) => ({
+    ...column,
+    width:
+      column.widthMode === "fixed"
+        ? column.width * fixedScale
+        : flexColumns.length
+          ? remaining *
+            (Math.max(column.width || 1, 0) / Math.max(flexTotal, 1))
+          : width / Math.max(table.columns.length, 1),
+  }));
   const fittedTable: TableElement = { ...table, columns };
+  const rowHeights = table.rows.map((row) =>
+    calculateRowHeight(doc, fittedTable, row, padding),
+  );
+  const tableHeight =
+    headerHeight + rowHeights.reduce((total, height) => total + height, 0);
   const marginTop = table.marginTop ?? 0;
+  const marginBottom = table.marginBottom ?? 0;
+  const printableHeight =
+    doc.page.height - doc.page.margins.top - doc.page.margins.bottom;
+  return {
+    startX,
+    headerHeight,
+    padding,
+    width,
+    columns,
+    fittedTable,
+    rowHeights,
+    tableHeight,
+    marginTop,
+    marginBottom,
+    printableHeight,
+  };
+}
+
+export function prepareTable(
+  doc: PDFKit.PDFDocument,
+  table: TableElement,
+): void {
+  if (table.y !== undefined) return;
+  withHorizontalMargins(doc, table.marginLeft, table.marginRight, () => {
+    const {
+      headerHeight,
+      rowHeights,
+      tableHeight,
+      marginTop,
+      marginBottom,
+      printableHeight,
+    } = tableLayout(doc, table);
+    const reservedHeight =
+      marginTop + tableHeight + marginBottom <= printableHeight
+        ? tableHeight + marginBottom
+        : headerHeight + (rowHeights[0] ?? 0);
+    const requestedY = doc.y + marginTop;
+    const nextY = ensureSpace(doc, requestedY, reservedHeight);
+    if (nextY !== requestedY) doc.y = nextY;
+  });
+}
+
+export function renderTable(doc: PDFKit.PDFDocument, table: TableElement): void {
+  withHorizontalMargins(doc, table.marginLeft, table.marginRight, () => {
+  const {
+    startX, headerHeight, padding, width, columns, fittedTable, rowHeights,
+    tableHeight, marginTop, marginBottom, printableHeight,
+  } = tableLayout(doc, table);
+  const reservedHeight = marginTop + tableHeight + marginBottom <= printableHeight
+    ? tableHeight + marginBottom
+    : headerHeight + (rowHeights[0] ?? 0);
   const requestedY = doc.y + marginTop;
-  let y = table.y ?? ensureSpace(doc, requestedY, headerHeight + 30);
+  let y = table.y ?? ensureSpace(doc, requestedY, reservedHeight);
   if (table.y === undefined && y !== requestedY) y += marginTop;
   if (table.showHeader !== false) y = drawTableHeader(doc, fittedTable, startX, y, width, headerHeight, padding, true, table.rows.length > 0);
   for (const [rowIndex, row] of table.rows.entries()) {
-    const height = calculateRowHeight(doc, fittedTable, row, padding); const nextY = ensureSpace(doc, y, height);
+    const height = rowHeights[rowIndex]; const nextY = ensureSpace(doc, y, height);
     if (nextY !== y) {
       y = table.showHeader === false
         ? nextY
