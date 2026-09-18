@@ -35,6 +35,7 @@ export interface DocumentDatasourceResultSet {
 }
 export interface DocumentDataSource {
   id: string;
+  slug?: string;
   name: string;
   description?: string;
   connector?: string;
