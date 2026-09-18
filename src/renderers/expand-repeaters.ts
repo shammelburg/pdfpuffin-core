@@ -109,6 +109,10 @@ function expandElement(element: DocumentElement, context: DataRecord, root: unkn
   }
   const clone = resolveValues(structuredClone(element), context, root) as DocumentElement;
   delete clone.visibleWhen;
+  if (clone.type === 'table') {
+    clone.rows = clone.rows.filter((row) => Array.isArray(row) || rowIsVisible(row, context, root));
+    for (const row of clone.rows) if (!Array.isArray(row)) delete row.visibleWhen;
+  }
   if (clone.type === 'stack' || clone.type === 'inline' || clone.type === 'region') clone.elements = clone.elements.map((child) => expandElement(child, context, root)).filter((child): child is DocumentElement => child !== null) as typeof clone.elements;
   if (clone.type === 'columns') clone.columns.forEach((column) => column.elements = column.elements.map((child) => expandElement(child, context, root)).filter((child): child is DocumentElement => child !== null));
   return clone;
