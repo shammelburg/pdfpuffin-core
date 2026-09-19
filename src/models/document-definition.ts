@@ -50,7 +50,6 @@ export interface DocumentDefinition {
   page: {
     size: string | [number, number];
     layout?: 'portrait' | 'landscape';
-    userUnit?: number;
     defaultFontSize?: number;
     margins: { top: number; right: number; bottom: number; left: number };
   };
@@ -105,7 +104,6 @@ export const DEFAULT_DOCUMENT: DocumentDefinition = {
   page: {
     size: 'A4',
     layout: 'portrait',
-    userUnit: 1,
     defaultFontSize: 11,
     margins: { top: 0, right: 25, bottom: 0, left: 25 },
   },
