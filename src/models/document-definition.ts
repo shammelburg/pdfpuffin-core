@@ -46,7 +46,6 @@ export interface DocumentDataSource {
 }
 export interface DocumentDefinition {
   name?: string;
-  status?: 'Draft' | 'Live';
   units?: 'px';
   page: {
     size: string | [number, number];
@@ -98,17 +97,10 @@ export interface DocumentDefinition {
     };
   };
   content: DocumentElement[];
-  /** Persisted datasource IDs used by this template. */
-  datasourceReferences?: string[];
-  /** Runtime-hydrated datasource data. Omitted when the template JSON is serialized. */
-  dataSources?: DocumentDataSource[];
-  /** Legacy single datasource, migrated into the first named datasource by the editor. */
-  data?: unknown;
 }
 
 export const DEFAULT_DOCUMENT: DocumentDefinition = {
   name: '',
-  status: 'Draft',
   units: 'px',
   page: {
     size: 'A4',
