@@ -1,7 +1,6 @@
 import { DocumentDefinition, DocumentElement } from '../models/document-definition.js';
 import { renderElement } from './render-element.js';
 import { resolvePageTokens } from './resolve-page-tokens.js';
-import { expandRepeaters } from './expand-repeaters.js';
 import { estimateElementHeight } from './estimate-element-height.js';
 import { renderBorder } from './render-element-border.js';
 
@@ -41,11 +40,7 @@ function resolveTokens(element: DocumentElement, page: number, count: number): D
   return clone;
 }
 
-export function renderRepeatingRegions(
-  doc: PDFKit.PDFDocument,
-  definition: DocumentDefinition,
-  data?: unknown,
-): void {
+export function renderRepeatingRegions(doc: PDFKit.PDFDocument, definition: DocumentDefinition): void {
   const repeating = definition.content.filter((element) => element.type === 'region');
   if (!repeating.length) return;
   const range = doc.bufferedPageRange();
@@ -57,8 +52,9 @@ export function renderRepeatingRegions(
     for (const region of repeating) {
       if (region.type !== 'region') continue;
       const regionMargins = region.margins ?? { top: 0, right: 0, bottom: 0, left: 0 };
-      const expandedElements = expandRepeaters(region.elements, data)
-        .map((element) => resolveTokens(element, page - range.start + 1, range.count));
+      const expandedElements = region.elements.map((element) =>
+        resolveTokens(element, page - range.start + 1, range.count),
+      );
       doc.page.margins.left = regionMargins.left;
       doc.page.margins.right = regionMargins.right;
       doc.page.margins.top = 0;

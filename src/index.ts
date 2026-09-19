@@ -14,5 +14,6 @@ export * from './models/table-element.js';
 export * from './models/text-element.js';
 export * from './models/value-format.js';
 export * from './renderers/calculate-repeating-region-margins.js';
+export * from './renderers/expand-repeaters.js';
 export * from './renderers/render-document.js';
 export * from './renderers/resolve-page-tokens.js';
