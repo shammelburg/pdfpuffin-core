@@ -1,5 +1,4 @@
 export * from './models/columns-element.js';
-export * from './models/document-data-context.js';
 export * from './models/document-definition.js';
 export * from './models/element-appearance.js';
 export * from './models/graphic-element.js';

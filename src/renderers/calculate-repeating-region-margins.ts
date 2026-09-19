@@ -1,7 +1,6 @@
 import { DocumentDefinition, DocumentElement } from '../models/document-definition.js';
 import { TableRow } from '../models/table-element.js';
 import { expandRepeaters } from './expand-repeaters.js';
-import { documentDataContext } from '../models/document-data-context.js';
 
 const PAGE_SIZES: Record<string, [number, number]> = { A3: [841.89, 1190.55], A4: [595.28, 841.89], A5: [419.53, 595.28], LETTER: [612, 792], LEGAL: [612, 1008], TABLOID: [792, 1224] };
 
@@ -55,7 +54,10 @@ function elementHeight(element: DocumentElement, width: number): number {
   }
 }
 
-export function calculateRepeatingRegionHeights(definition: DocumentDefinition): { header: number; footer: number } {
+export function calculateRepeatingRegionHeights(
+  definition: DocumentDefinition,
+  data?: unknown,
+): { header: number; footer: number } {
   const raw = Array.isArray(definition.page.size) ? definition.page.size : (PAGE_SIZES[definition.page.size.toUpperCase()] ?? PAGE_SIZES['A4']);
   const pageWidth = definition.page.layout === 'landscape' ? raw[1] : raw[0];
   const margins = definition.page.margins;
@@ -64,14 +66,17 @@ export function calculateRepeatingRegionHeights(definition: DocumentDefinition):
   const footer = definition.content.find((element) => element.type === 'region' && element.region === 'footer');
   const expandedHeight = (region: DocumentElement | undefined): number => {
     if (!region || region.type !== 'region') return 0;
-    return elementHeight({ ...region, elements: expandRepeaters(region.elements, documentDataContext(definition)) }, width);
+    return elementHeight({ ...region, elements: expandRepeaters(region.elements, data) }, width);
   };
   return { header: expandedHeight(header), footer: expandedHeight(footer) };
 }
 
-export function calculateRepeatingRegionMargins(definition: DocumentDefinition): DocumentDefinition['page']['margins'] {
+export function calculateRepeatingRegionMargins(
+  definition: DocumentDefinition,
+  data?: unknown,
+): DocumentDefinition['page']['margins'] {
   const margins = definition.page.margins;
-  const heights = calculateRepeatingRegionHeights(definition);
+  const heights = calculateRepeatingRegionHeights(definition, data);
   return {
     ...margins,
     top: margins.top + heights.header,
