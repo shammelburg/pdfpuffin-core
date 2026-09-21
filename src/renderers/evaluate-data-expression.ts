@@ -8,7 +8,7 @@ type Token =
 
 const blockedKeys = new Set(['__proto__', 'prototype', 'constructor']);
 
-export function valueAt(source: unknown, path: string): unknown {
+function valueAt(source: unknown, path: string): unknown {
   return path
     .split('.')
     .filter(Boolean)
